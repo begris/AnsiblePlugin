@@ -1,15 +1,19 @@
 plugins {
-    java
+    id("java")
 }
 
 repositories{
-    mavenCentral()
+//    mavenCentral()
 }
 
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.11.2")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 /* Manual changes:
 1- Remove import_playbook from modules list and it's file.

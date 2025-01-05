@@ -1,51 +1,68 @@
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
-    java
-    jacoco
-    id("org.sonarqube") version "3.0"
-    id("org.jetbrains.intellij") version "0.5.0"
+    id("java")
+//    jacoco
+//    id("org.sonarqube") version "3.0"
+    id("org.jetbrains.intellij.platform")
+//    id("org.jetbrains.intellij.platform.migration")
 }
 
 group = "ir.msdehghan"
 version = "1.0.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.11.2")
+    intellijPlatform {
+//        intellijIdeaCommunity("2024.3.1")
+        intellijIdeaUltimate("2024.3")
+        bundledPlugin("org.jetbrains.plugins.yaml")
+        testFramework(TestFrameworkType.Platform)
+    }
+    testImplementation("junit:junit:4.13.2")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
+//java {
+//    sourceCompatibility = JavaVersion.VERSION_20
+//    targetCompatibility = JavaVersion.VERSION_20
+//}
 
-intellij {
-    version = "2020.1.4"
-    setPlugins("yaml")
+intellijPlatform {
+    version = "2024.3"
+    projectName = rootProject.name
+//    setPlugins(listOf("yaml"))
     // Instrument if we are not in CI. It will make coverage wrong in tests
     instrumentCode = System.getenv("CI") == null
-    updateSinceUntilBuild = false
-}
-
-sonarqube {
-    properties {
-        properties["sonar.projectKey"] = "MSDehghan_AnsiblePlugin"
-        properties["sonar.organization"] = "msdehghan-github"
-        properties["sonar.host.url"] = "https://sonarcloud.io"
+    pluginConfiguration {
     }
-}
-
-tasks{
-    sonarqube.get().dependsOn(jacocoTestReport)
-    jacocoTestReport {
-        dependsOn(test)
-        reports {
-            xml.isEnabled = true
+    pluginVerification {
+        ides {
+            ide(IntelliJPlatformType.IntellijIdeaUltimate, version = "2024.3")
+            recommended()
+            //project("/home/bjoern.beier/wrk/config/idea-plugin-test-amsible-project/infrastructure")
         }
     }
-    buildSearchableOptions {
-        enabled = false
-    }
+    //updateSinceUntilBuild = false
 }
+
+//sonarqube {
+//    properties {
+//        properties["sonar.projectKey"] = "MSDehghan_AnsiblePlugin"
+//        properties["sonar.organization"] = "msdehghan-github"
+//        properties["sonar.host.url"] = "https://sonarcloud.io"
+//    }
+//}
+//
+//tasks{
+//    sonarqube.get().dependsOn(jacocoTestReport)
+//    jacocoTestReport {
+//        dependsOn(test)
+//        reports {
+//            xml.required = true
+////            xml.isEnabled = true
+//        }
+//    }
+//    buildSearchableOptions {
+//        enabled = false
+//    }
+//}
