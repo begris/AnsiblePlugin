@@ -25,23 +25,26 @@ public class AnsibleModuleField implements YamlField {
     }
 
     private final String name;
+    private final String fqcn;
     private final AnsibleModuleType moduleType;
 
-    public AnsibleModuleField(String name) {
+    public AnsibleModuleField(String name, String fqcn) {
         this.name = name;
-        this.moduleType = new AnsibleModuleType(name);
+        this.fqcn = fqcn;
+        this.moduleType = new AnsibleModuleType(fqcn);
     }
 
     @Override
     public LookupElement getLookupElement() {
-        return LookupElementBuilder.create(this, name)
+        return LookupElementBuilder.create(this, fqcn)
+                .withLookupString(name)
                 .withIcon(AllIcons.Nodes.Method)
                 .withTypeText("Ansible Module");
     }
 
     @Override
     public String getName() {
-        return name;
+        return fqcn;
     }
 
     @Override
@@ -62,7 +65,8 @@ public class AnsibleModuleField implements YamlField {
         AnsibleModuleDto moduleDto = moduleType.getModuleDto();
         final String NEW_LINE = "<br/>";
         StringBuilder sb = new StringBuilder(DocumentationMarkup.CONTENT_START);
-        sb.append("<b> Module ").append(moduleDto.name).append("</b>").append(NEW_LINE);
+        sb.append("<b> Module ").append(moduleDto.fqcn).append("</b>").append(NEW_LINE);
+        sb.append("<i> Short ").append(moduleDto.name).append("</i>").append(NEW_LINE);
         if (moduleDto.shortDescription != null && !moduleDto.shortDescription.isEmpty()) {
             sb.append("<p>").append(moduleDto.shortDescription).append("</p>");
         }
@@ -91,6 +95,7 @@ public class AnsibleModuleField implements YamlField {
             AnsibleUtil.appendSection("Return fields", moduleDto.returnFields.toString(), sb);
         }
         AnsibleUtil.appendSection("Category", moduleDto.category, sb);
+        AnsibleUtil.appendSection("Collection", moduleDto.collection, sb);
         AnsibleUtil.appendSection("Added in", moduleDto.addedIn, sb);
         sb.append(DocumentationMarkup.SECTIONS_END);
         return sb.toString();

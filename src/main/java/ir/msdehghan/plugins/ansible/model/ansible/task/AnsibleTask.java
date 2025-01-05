@@ -1,15 +1,18 @@
 package ir.msdehghan.plugins.ansible.model.ansible.task;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import ir.msdehghan.plugins.ansible.model.ansible.play.LoopControl;
 import ir.msdehghan.plugins.ansible.model.yml.YamlTypes;
 import ir.msdehghan.plugins.ansible.model.yml.type.YamlMappingType;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
-import static ir.msdehghan.plugins.ansible.model.ansible.AnsibleFields.*;
+import static ir.msdehghan.plugins.ansible.model.ansible.AnsibleFields.getBaseGroup;
+import static ir.msdehghan.plugins.ansible.model.ansible.AnsibleFields.getCollectionsGroup;
+import static ir.msdehghan.plugins.ansible.model.ansible.AnsibleFields.getConditionalGroup;
+import static ir.msdehghan.plugins.ansible.model.ansible.AnsibleFields.getDelegateGroup;
 import static ir.msdehghan.plugins.ansible.model.ansible.AnsibleFields.getTaggableGroup;
 import static ir.msdehghan.plugins.ansible.model.yml.type.api.YamlField.Relation.MAPPING;
 import static ir.msdehghan.plugins.ansible.model.yml.type.api.YamlField.Relation.SEQUENCE;
@@ -108,13 +111,21 @@ public class AnsibleTask extends YamlMappingType {
         loadPluginNames();
     }
 
+    // FIXME -- static or Factory
+    private final ObjectReader PLUGIN_READER = new ObjectMapper().readerFor(AnsiblePluginsDto.class);
+
     private void loadPluginNames() {
-        try (InputStream pluginsInputStream = AnsibleTask.class.getResourceAsStream("/plugins_list.txt")) {
-            BufferedReader pluginsReader = new BufferedReader(new InputStreamReader(pluginsInputStream));
-            String name;
-            while ((name = pluginsReader.readLine()) != null) {
-                addField(new AnsibleModuleField(name));
+        try (InputStream pluginsInputStream = AnsibleTask.class.getResourceAsStream("/plugins.json")) {
+            if (pluginsInputStream == null) {
+                throw new IllegalStateException("Ansible plugins list not found. it's Unexpected!");
             }
+            final AnsiblePluginsDto ansiblePluginsDto = PLUGIN_READER.readValue(pluginsInputStream);
+            if (ansiblePluginsDto == null) {
+                throw new IllegalStateException("Ansible plugins list can't be loaded. it's Unexpected!");
+            }
+            ansiblePluginsDto.plugins.forEach(plugin -> {
+                addField(new AnsibleModuleField(plugin.name, plugin.fqcn));
+            });
         } catch (IOException e) {
             throw new IllegalStateException("Can't read ansible module names.", e);
         }
