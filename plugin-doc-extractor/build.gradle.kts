@@ -3,16 +3,11 @@ plugins {
 }
 
 repositories{
-//    mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
     implementation(libs.jakson)
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
 }
 
 /* Manual changes:
