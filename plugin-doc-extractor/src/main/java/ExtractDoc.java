@@ -26,7 +26,7 @@ public class ExtractDoc {
     public static void main(String[] args) throws IOException {
         ObjectMapper mapper = new JsonMapper();
         Map<String, AnsibleModule> map = mapper.readValue(ExtractDoc.class.getResource("/plugins.json"),
-                new TypeReference<Map<String, AnsibleModule>>() {
+                new TypeReference<>() {
                 });
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         Files.createDirectories(Paths.get("./docs"));
@@ -52,7 +52,6 @@ public class ExtractDoc {
     public static AnsibleModuleDto convert(AnsibleModule m) {
         AnsibleModuleDto moduleDto = new AnsibleModuleDto();
         Doc doc = m.doc;
-
 
         moduleDto.name = doc.module;
         moduleDto.fqcn = doc.collection +"."+ doc.module;
@@ -131,7 +130,7 @@ class AnsibleModule {
 
         @JsonSetter("status")
         public void setStatus(List<String> o) {
-            this.status = o.get(0);
+            this.status = o.getFirst();
         }
 
         @Override

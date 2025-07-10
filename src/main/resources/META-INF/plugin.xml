@@ -11,64 +11,36 @@
         Not only Ansible modules are recognized but also all of them have full documentation, right in your IDE.
         </p>
         <br/>
-        To report bugs and feature requests you can create a Github issue. For code contribution you can create pull requests.<br/>
-        Any type of contribution is <b>highly</b> appreciated. <br/>
-        <a href="https://github.com/MSDehghan/AnsiblePlugin">GitHub link</a>
+        To report bugs and feature requests you can create a GitHub issue. For code contribution you can create pull requests.<br/>
+        Any type of contribution is <b>highly</b> appreciated. <br/><br/>
+
+        You can support this plugin by starring the <a href="https://github.com/MSDehghan/AnsiblePlugin">GitHub repository</a>.
         <br/>
-        <br/>
-        We are actively developing new features. Some of them are listed below:
-        <h3>Features in progress:</h3>
-        <ul>
-            <li>Suggest inventory variables</li>
-            <li>Go to variable</li>
-            <li>Go to play</li>
-            <li>Ansible FQCN support</li>
-        </ul>
         </p>
     ]]>
     </description>
 
     <change-notes>
         <![CDATA[
-        <h2>0.92</h2>
+        <h2>1.0</h2>
         <ul>
-          <li>File path completion added wherever was needed(import_playbook, include_tasks, some module options,...).</li>
-          <li>Fix compatibility issues with 2020.3 EAP</li>
-          <li>Fix some typos in ansible docs and fields</li>
+          <li>Fix compatibility issues with 2024.3+ IDEs</li>
+          <li>Fix NPE on rare cases</li>
+          <li>Upgrade Intellij platform plugin to version 2</li>
+          <li>Upgrade plugin Java version to 21</li>
         </ul>
-        <h2>0.90</h2>
-        <ul>
-          <li>Finally roles are supported</li>
-          <li>Plugin detect available roles and suggest role names</li>
-          <li>Add some missing fields and documentations</li>
-        </ul>
-        <h2>0.12</h2>
-        <ul>
-          <li>Fix NPE in yaml sequences</li>
-          <li>Support block,always and rescue fields</li>
-          <li>Fix not showing help in some cases</li>
-          <li>Many small improvements to code</li>
-        </ul>
-        <h2>0.11</h2>
-        <ul>
-          <li>Add ansible playbooks file icon</li>
-        </ul>
-        <h2>0.1</h2>
-        <ul>
-          <li>Initial release of plugin</li>
-        </ul>
+        You can support the plugin by starring the <a href="https://github.com/MSDehghan/AnsiblePlugin">GitHub</a> repository.
         ]]>
     </change-notes>
 
-    <idea-version since-build="182" />
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor language="yaml" implementationClass="ir.msdehghan.plugins.ansible.AnsibleCompletionContributor"/>
         <psi.referenceContributor language="yaml" implementation="ir.msdehghan.plugins.ansible.reference.AnsibleReferenceContributor" />
-<!--        <documentationProvider implementation="ir.msdehghan.plugins.ansible.AnsiblePlayDocProvider" />-->
-        <lang.documentationProvider language="yaml" implementationClass="ir.msdehghan.plugins.ansible.AnsiblePlayDocProvider" />
+        <lang.documentationProvider implementationClass="ir.msdehghan.plugins.ansible.AnsiblePlayDocProvider" language="yaml"/>
         <fileIconProvider implementation="ir.msdehghan.plugins.ansible.icon.AnsibleFileIconProvider" />
         <fileType name="YAML" patterns="*playbook.yml;*playbook.yaml" fileNames="main.yml;main.yaml" />
         <json.catalog.exclusion implementation="ir.msdehghan.plugins.ansible.JsonSchemaExclude" />
