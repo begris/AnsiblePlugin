@@ -1,9 +1,9 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
-    java
+    id("java")
     jacoco
-    alias(libs.plugins.intelliJPlatform)
+    id("org.jetbrains.intellij.platform") version "2.18.1"
     alias(libs.plugins.sonarqube)
 }
 
@@ -20,15 +20,15 @@ repositories {
 dependencies {
     testImplementation(libs.junit)
     intellijPlatform {
-        intellijIdeaCommunity("2024.3")
+        intellijIdea("2025.3.5")
         bundledPlugins("org.jetbrains.plugins.yaml", "com.intellij.modules.json")
         testFramework(TestFrameworkType.Platform)
     }
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 intellijPlatform {
@@ -57,6 +57,7 @@ sonar {
 }
 
 tasks {
+
     jacocoTestReport {
         dependsOn(test)
         reports {

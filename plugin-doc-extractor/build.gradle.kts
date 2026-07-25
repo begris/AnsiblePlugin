@@ -11,6 +11,12 @@ dependencies {
 }
 
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+
 /* Manual changes:
 1- Remove import_playbook from modules list and it's file.
 2- Change type of 'mode' field in copy module to raw.
