@@ -61,7 +61,7 @@ class AnsibleModuleDto {
         List<String> aliases;
 
         @JsonProperty("choices")
-        List<String> choices;
+        List<Choice> choices;
 
         @JsonProperty("description")
         String description;
@@ -80,5 +80,17 @@ class AnsibleModuleDto {
 
         @JsonProperty("defaultValue")
         String defaultValue;
+    }
+
+    static class Choice {
+        @JsonProperty("choice")
+        String choice;
+
+        @JsonProperty("description")
+        String description;
+
+        public String toDocString() {
+            return "<li>" + choice + ((description != null && !description.isBlank()) ? " --> " + description : "")  + "</li>";
+        }
     }
 }

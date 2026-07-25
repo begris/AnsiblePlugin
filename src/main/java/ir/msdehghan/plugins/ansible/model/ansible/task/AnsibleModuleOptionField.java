@@ -10,6 +10,8 @@ import ir.msdehghan.plugins.ansible.model.yml.type.YamlEnumType;
 import ir.msdehghan.plugins.ansible.model.yml.type.YamlType;
 import ir.msdehghan.plugins.ansible.model.yml.type.api.YamlField;
 
+import java.util.stream.Collectors;
+
 public class AnsibleModuleOptionField implements YamlField {
     private final String name;
     private final AnsibleModuleDto.Field field;
@@ -25,7 +27,7 @@ public class AnsibleModuleOptionField implements YamlField {
 
     private YamlType computeType() {
         if (field.choices != null && !field.choices.isEmpty()) {
-            return YamlEnumType.of(field.choices.toArray(new String[0]));
+            return YamlEnumType.of(field.choices.stream().map(choice -> choice.choice).toArray(String[]::new));
         } else if (field.type == null) {
             return YamlTypes.ANY;
         } else if (field.type.equals("list") && field.elements != null) {
@@ -95,7 +97,10 @@ public class AnsibleModuleOptionField implements YamlField {
             AnsibleUtil.appendSection("Aliases", field.aliases.toString(), sb);
         }
         if (field.choices != null) {
-            AnsibleUtil.appendSection("Choices", field.choices.toString(), sb);
+            AnsibleUtil.appendSection("Choices:",
+                    field.choices.stream()
+                            .map(AnsibleModuleDto.Choice::toDocString)
+                            .collect(Collectors.joining("","<ul>","</ul>")), sb);
         }
         AnsibleUtil.appendSection("Type", field.type, sb);
         AnsibleUtil.appendSection("Added in", field.versionAdded, sb);

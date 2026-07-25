@@ -28,7 +28,7 @@ public class AnsibleModuleDto {
 
     public static class Field {
         public List<String> aliases;
-        public List<String> choices;
+        public List<Choice> choices;
         public String description;
         public String elements;
         public Boolean required;
@@ -36,5 +36,39 @@ public class AnsibleModuleDto {
         public String versionAdded;
         public String defaultValue;
 
+    }
+
+    public static class Choice {
+        public String choice;
+        public String description;
+
+        public static Builder with() {
+            return new Builder();
+        }
+
+        public static class Builder {
+            private Choice choice;
+
+            private Choice get() {
+                if (this.choice == null) {
+                    this.choice = new Choice();
+                }
+                return this.choice;
+            }
+
+            public Builder choice(String choice) {
+                get().choice = choice;
+                return this;
+            }
+
+            public Builder description(String description) {
+                get().description = description;
+                return this;
+            }
+
+            public Choice build() {
+                return get();
+            }
+        }
     }
 }

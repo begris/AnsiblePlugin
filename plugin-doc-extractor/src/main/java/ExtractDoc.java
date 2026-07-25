@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,20 @@ public class ExtractDoc {
                 Option option = optionEntry.getValue();
                 Field field = new Field();
                 field.aliases = option.aliases;
-                field.choices = option.choices;
+                if (option.choices instanceof List choices) {
+                    field.choices = new ArrayList<>();
+                    for (Object choice : choices) {
+                        if (choice instanceof String s) {
+                            field.choices.add(AnsibleModuleDto.Choice.with().choice(s).build());
+                        } else if (choice instanceof List choiceList) {
+                            field.choices = choiceList;
+                        } else if (choice instanceof Map choiceEntries) {
+                            for (Map.Entry<String, Object> entry : ((Map<String, Object>) choiceEntries).entrySet()) {
+                                field.choices.add(AnsibleModuleDto.Choice.with().choice(entry.getKey()).description((String) entry.getValue()).build());
+                            }
+                        }
+                    }
+                }
                 field.defaultValue = option.defaultValue;
                 field.description = option.description;
                 field.elements = option.elements;
@@ -214,7 +228,7 @@ class Doc {
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Option {
     public List<String> aliases;
-    public List<String> choices;
+    public Object choices;
     public String description;
     public String elements;
     public Boolean required;
