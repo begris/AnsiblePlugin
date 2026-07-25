@@ -10,6 +10,12 @@ class AnsibleModuleDto {
     @JsonProperty("name")
     String name;
 
+    @JsonProperty("fqcn")
+    String fqcn;
+
+    @JsonProperty("collection")
+    public String collection;
+
     @JsonProperty("category")
     String category;
 

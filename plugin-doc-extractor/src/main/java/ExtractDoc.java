@@ -1,5 +1,6 @@
 import api.AnsibleModuleDto;
 import api.AnsibleModuleDto.Field;
+import api.AnsiblePluginListDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,10 +27,24 @@ public class ExtractDoc {
                 });
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         Files.createDirectories(Paths.get("./docs"));
-        for (AnsibleModuleDto value : map.values().stream().map(ExtractDoc::convert).toList()) {
-            Files.write(Paths.get("./docs", value.name + ".json"), mapper.writeValueAsBytes(value), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+        final List<AnsibleModuleDto> ansibleModuleDtos = map.values().stream().map(ExtractDoc::convert).toList();
+        for (AnsibleModuleDto value : ansibleModuleDtos) {
+            Files.write(Paths.get("./docs", value.fqcn.replace('.', '_') + ".json"), mapper.writeValueAsBytes(value),
+                    StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         }
 
+        final List<AnsiblePluginListDto.Plugin> plugins = ansibleModuleDtos.stream().map(ExtractDoc::convertPlugin).collect(Collectors.toList());
+        final AnsiblePluginListDto pluginListDto = new AnsiblePluginListDto();
+        pluginListDto.plugins = plugins;
+        Files.write(Paths.get("./plugins.json"), mapper.writeValueAsBytes(pluginListDto), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+    }
+
+    public static AnsiblePluginListDto.Plugin convertPlugin(AnsibleModuleDto value) {
+        AnsiblePluginListDto.Plugin plugin = new AnsiblePluginListDto.Plugin();
+        plugin.name = value.name;
+        plugin.fqcn = value.fqcn;
+        plugin.collection = value.collection;
+        return plugin;
     }
 
     public static AnsibleModuleDto convert(AnsibleModule m) {
@@ -37,6 +52,8 @@ public class ExtractDoc {
         Doc doc = m.doc;
 
         moduleDto.name = doc.module;
+        moduleDto.fqcn = doc.collection + "." + doc.module;
+        moduleDto.collection = doc.collection;
         moduleDto.addedIn = doc.version_added;
         moduleDto.category = doc.category;
         moduleDto.description = doc.description;
@@ -50,6 +67,8 @@ public class ExtractDoc {
             moduleDto.deprecated.alternative = doc.deprecated.alternative;
             moduleDto.deprecated.removedIn = doc.deprecated.removed_in;
             moduleDto.deprecated.why = doc.deprecated.why;
+            moduleDto.deprecated.removed_from_collection = doc.deprecated.removed_from_collection;
+            moduleDto.deprecated.removed_at_date = doc.deprecated.removed_at_date;
         }
 
         if (doc.options != null) {
@@ -125,6 +144,7 @@ class AnsibleModule {
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Doc {
     public String module;
+    public String collection;
     public String version_added;
     public String short_description;
     public String filename;
@@ -160,6 +180,7 @@ class Doc {
     public String toString() {
         return "Doc{" +
                 "module='" + module + '\'' +
+                ", collection='" + collection + '\'' +
                 ", versionAdded='" + version_added + '\'' +
                 ", shortDescription='" + short_description + '\'' +
                 ", filename='" + filename + '\'' +
@@ -174,6 +195,8 @@ class Doc {
         public String alternative;
         public String why;
         public String removed_in;
+        public String removed_from_collection;
+        public String removed_at_date;
 
         @Override
         public String toString() {
@@ -181,6 +204,8 @@ class Doc {
                     "alternative='" + alternative + '\'' +
                     ", why='" + why + '\'' +
                     ", removed_in='" + removed_in + '\'' +
+                    ", removed_from_collection='" + removed_from_collection + '\'' +
+                    ", removed_at_date='" + removed_at_date + '\'' +
                     '}';
         }
     }

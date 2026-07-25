@@ -20,9 +20,12 @@ class AnsibleModuleType extends YamlType implements MappingType {
     private List<YamlField> fields;
     private List<YamlField> fieldsRO;
 
+    private final String docName;
+
 
     public AnsibleModuleType(String name) {
         super(name);
+        docName = name.replace('.','_');
     }
 
     private static YamlField convertToYamlField(Map.Entry<String, AnsibleModuleDto.Field> field) {
@@ -42,7 +45,7 @@ class AnsibleModuleType extends YamlType implements MappingType {
 
     private synchronized void load() {
         if (moduleDto == null) {
-            try (InputStream pluginInputStream = AnsibleTask.class.getResourceAsStream("/docs/" + name + ".json")) {
+            try (InputStream pluginInputStream = AnsibleTask.class.getResourceAsStream("/docs/" + docName + ".json")) {
                 if (pluginInputStream == null) {
                     throw new IllegalStateException("Ansible Module " + name + " not found. it's Unexpected!");
                 }

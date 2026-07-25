@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class AnsibleModuleDto {
+    public String fqcn;
     public String name;
+    public String collection;
     public String category;
     public Set<String> returnFields;
     public String addedIn;
@@ -20,6 +22,8 @@ public class AnsibleModuleDto {
         public String alternative;
         public String why;
         public String removedIn;
+        public String removed_from_collection;
+        public String removed_at_date;
     }
 
     public static class Field {
