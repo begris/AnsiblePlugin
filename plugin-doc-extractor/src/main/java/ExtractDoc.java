@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -22,22 +23,28 @@ import java.util.stream.Collectors;
 
 public class ExtractDoc {
     public static void main(String[] args) throws IOException {
+
+        String pluginsSource = args[0];
+        String pluginTarget = args[1];
+        String docsTarget = args[2];
+
         ObjectMapper mapper = new JsonMapper();
-        Map<String, AnsibleModule> map = mapper.readValue(ExtractDoc.class.getResource("/plugins.json"),
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        Map<String, AnsibleModule> map = mapper.readValue(Files.newInputStream(Paths.get(pluginsSource)), // "/plugins.json"
                 new TypeReference<>() {
                 });
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        Files.createDirectories(Paths.get("./docs"));
+        Files.createDirectories(Paths.get(docsTarget)); // "./docs"
         final List<AnsibleModuleDto> ansibleModuleDtos = map.values().stream().map(ExtractDoc::convert).toList();
         for (AnsibleModuleDto value : ansibleModuleDtos) {
-            Files.write(Paths.get("./docs", value.fqcn.replace('.', '_') + ".json"), mapper.writeValueAsBytes(value),
-                    StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            Files.write(Paths.get(docsTarget, value.fqcn.replace('.','_') + ".json"), mapper.writeValueAsBytes(value),
+                    StandardOpenOption.CREATE, StandardOpenOption.WRITE); // "/docs"
         }
 
         final List<AnsiblePluginListDto.Plugin> plugins = ansibleModuleDtos.stream().map(ExtractDoc::convertPlugin).collect(Collectors.toList());
         final AnsiblePluginListDto pluginListDto = new AnsiblePluginListDto();
         pluginListDto.plugins = plugins;
-        Files.write(Paths.get("./plugins.json"), mapper.writeValueAsBytes(pluginListDto), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+        Files.write(Paths.get(pluginTarget), mapper.writeValueAsBytes(pluginListDto), StandardOpenOption.CREATE, StandardOpenOption.WRITE); // "/plugins.json"
     }
 
     public static AnsiblePluginListDto.Plugin convertPlugin(AnsibleModuleDto value) {

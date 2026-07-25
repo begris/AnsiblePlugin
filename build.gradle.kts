@@ -21,9 +21,29 @@ dependencies {
     testImplementation(libs.junit)
     intellijPlatform {
         intellijIdea("2025.3.5")
+
         bundledPlugins("org.jetbrains.plugins.yaml", "com.intellij.modules.json")
         testFramework(TestFrameworkType.Platform)
     }
+    compileOnly(project(":plugin-doc-extractor"))
+}
+
+val docsProject = project(":plugin-doc-extractor")
+
+tasks.register<Sync>("syncPluginDocs") {
+    dependsOn(":plugin-doc-extractor:generateDocs")
+    from(docsProject.layout.buildDirectory.dir("ansible-plugins/docs"))
+    into(layout.buildDirectory.dir("resources/main/docs"))
+}
+
+tasks.register<Copy>("copyPluginsMetadata") {
+    dependsOn(":plugin-doc-extractor:generateDocs")
+    from(docsProject.layout.buildDirectory.dir("ansible-plugins/plugins.json"))
+    into(layout.buildDirectory.dir("resources/main"))
+}
+
+tasks.named("processResources") {
+    dependsOn(tasks.named("syncPluginDocs"), tasks.named("copyPluginsMetadata"))
 }
 
 java {
@@ -57,6 +77,11 @@ sonar {
 }
 
 tasks {
+    runIde {
+        argumentProviders += CommandLineArgumentProvider {
+            listOf("/home/bbeier/wrk/config/infrastructure")
+        }
+    }
 
     jacocoTestReport {
         dependsOn(test)
