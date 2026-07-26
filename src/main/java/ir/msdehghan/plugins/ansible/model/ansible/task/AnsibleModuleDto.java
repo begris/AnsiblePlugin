@@ -54,6 +54,8 @@ class AnsibleModuleDto {
         @JsonProperty("removedIn")
         String removedIn;
 
+        @JsonProperty("removed_from_collection")
+        String removedFromCollection;
     }
 
     static class Field {
